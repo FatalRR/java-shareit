@@ -9,10 +9,10 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 public class ItemDto {
-    Integer id;
+    private Integer id;
     @NotBlank(message = ExceptionMessages.EMPTY_NAME)
-    String name;
+    private String name;
     @NotBlank(message = ExceptionMessages.EMPTY_DESCRIPTION)
-    String description;
-    Boolean available;
+    private String description;
+    private Boolean available;
 }
