@@ -5,14 +5,12 @@ import ru.practicum.shareit.exception.AlreadyExistException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.messages.ExceptionMessages;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Integer, User> users = new HashMap<>();
+    private final Set<String> userEmails = new HashSet<>();
     private Integer id = 1;
 
     private Integer generateId() {
@@ -26,26 +24,25 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        for (User userCheck : users.values()) {
-            if (userCheck.getEmail().equals(user.getEmail())) {
-                throw new AlreadyExistException(String.valueOf(ExceptionMessages.USER_EMAIL_EXIST));
-            }
+        if (userEmails.contains(user.getEmail())) {
+            throw new AlreadyExistException(ExceptionMessages.USER_EMAIL_EXIST);
         }
 
         user.setId(generateId());
         users.put(user.getId(), user);
+        userEmails.add(user.getEmail());
         return user;
     }
 
     @Override
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
-            throw new NotFoundException(String.valueOf(ExceptionMessages.USER_NOT_FOUND));
+            throw new NotFoundException(ExceptionMessages.USER_NOT_FOUND);
         }
 
         for (User userCheck : users.values()) {
             if (userCheck.getEmail().equals(user.getEmail()) && !user.getId().equals(userCheck.getId())) {
-                throw new AlreadyExistException(String.valueOf(ExceptionMessages.USER_EMAIL_EXIST));
+                throw new AlreadyExistException(ExceptionMessages.USER_EMAIL_EXIST);
             }
         }
 
@@ -58,6 +55,8 @@ public class UserRepositoryImpl implements UserRepository {
                     user.setEmail(userTemp.getEmail());
                 }
                 users.replace(user.getId(), user);
+                userEmails.remove(userTemp.getEmail());
+                userEmails.add(user.getEmail());
             }
         }
         return user;
@@ -65,19 +64,19 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User getById(Integer id) {
-        if (users.containsKey(id)) {
-            return users.get(id);
-        } else {
-            throw new NotFoundException(String.valueOf(ExceptionMessages.USER_NOT_FOUND));
+        User user = users.get(id);
+        if (user == null) {
+            throw new NotFoundException(ExceptionMessages.USER_NOT_FOUND);
         }
+        return user;
     }
 
     @Override
     public void removeById(Integer id) {
-        if (users.containsKey(id)) {
-            users.remove(id);
-        } else {
-            throw new NotFoundException(String.valueOf(ExceptionMessages.USER_NOT_FOUND));
+        User user = users.remove(id);
+        if (user == null) {
+            throw new NotFoundException(ExceptionMessages.USER_NOT_FOUND);
         }
+        userEmails.remove(user.getEmail());
     }
 }
