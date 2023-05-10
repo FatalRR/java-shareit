@@ -9,4 +9,5 @@ public enum ExceptionMessages {
     public static final String USER_EMAIL_EXIST = "Пользователь с таким email уже существует";
     public static final String ITEM_BE_AVAILABLE = "Вещь должна быть доступна";
     public static final String NOT_OWNER = "Вы не являетесь владельцем";
+    public static final String NOT_ITEM = "Вещь с ID =%d не найдена";
 }
