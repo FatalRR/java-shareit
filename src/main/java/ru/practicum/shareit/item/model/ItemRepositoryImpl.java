@@ -3,14 +3,15 @@ package ru.practicum.shareit.item.model;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.messages.ExceptionMessages;
 
 import java.util.*;
 
 @Component
 public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Integer, List<Item>> items = new HashMap<>();
+    private final Map<Integer, Item> itemMap = new HashMap<>();
     private Integer id = 1;
-    ItemMapper itemMapper = new ItemMapper();
 
     private Integer generateId() {
         return id++;
@@ -23,14 +24,11 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item getById(Integer id) {
-        for (List<Item> userItems: items.values()) {
-            for (Item item: userItems) {
-                if (item.getId().equals(id)) {
-                    return item;
-                }
-            }
+        Item item = itemMap.get(id);
+        if (item == null) {
+            throw new NotFoundException(String.format(ExceptionMessages.NOT_ITEM, id));
         }
-        throw new NotFoundException(String.format("Вещь с ID =%d не найдена", id));
+        return item;
     }
 
     @Override
@@ -43,30 +41,31 @@ public class ItemRepositoryImpl implements ItemRepository {
             userItems.add(item);
             return userItems;
         });
+        itemMap.put(item.getId(), item);
         return item;
     }
 
     @Override
     public Item update(Item item) {
+        Item existingItem = itemMap.get(item.getId());
+        if (existingItem == null) {
+            throw new NotFoundException(String.format(ExceptionMessages.NOT_ITEM, item.getId()));
+        }
+        if (item.getName() == null) {
+            item.setName(existingItem.getName());
+        }
+        if (item.getDescription() == null) {
+            item.setDescription(existingItem.getDescription());
+        }
+        if (item.getAvailable() == null) {
+            item.setAvailable(existingItem.getAvailable());
+        }
         items.compute(item.getOwnerId(), (userId, userItems) -> {
-            int index = -1;
-            for (Item itemTemp : userItems) {
-                if (itemTemp.getId().equals(item.getId())) {
-                    index = userItems.indexOf(itemTemp);
-                    if (item.getName() == null) {
-                        item.setName(itemTemp.getName());
-                    }
-                    if (item.getDescription() == null) {
-                        item.setDescription(itemTemp.getDescription());
-                    }
-                    if (item.getAvailable() == null) {
-                        item.setAvailable(itemTemp.getAvailable());
-                    }
-                }
-            }
+            int index = userItems.indexOf(existingItem);
             userItems.set(index, item);
             return userItems;
         });
+        itemMap.put(item.getId(), item);
         return item;
     }
 
@@ -76,16 +75,17 @@ public class ItemRepositoryImpl implements ItemRepository {
             List<Item> userItems = items.get(userId);
             userItems.removeIf(item -> item.getId().equals(itemId));
         }
+        itemMap.remove(itemId);
     }
 
     @Override
     public List<ItemDto> getItemByQuery(String query) {
         List<ItemDto> itemsByQuery = new ArrayList<>();
-        for (List<Item> userItems: items.values()) {
-            for (Item item: userItems) {
+        for (List<Item> userItems : items.values()) {
+            for (Item item : userItems) {
                 if (item.getAvailable() && (item.getName().toUpperCase().contains(query.toUpperCase()) ||
                         item.getDescription().toUpperCase().contains(query.toUpperCase()))) {
-                    itemsByQuery.add(itemMapper.toDto(item));
+                    itemsByQuery.add(ItemMapper.toDto(item));
                 }
             }
         }
