@@ -20,12 +20,11 @@ import java.util.Objects;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    ItemMapper itemMapper = new ItemMapper();
 
     @Override
     public Item save(Integer userId, ItemDto itemDto) throws ValidationException {
         userRepository.getById(userId);
-        Item item = itemMapper.toEntity(userId, itemDto);
+        Item item = ItemMapper.toEntity(userId, itemDto);
         if (item.getAvailable() == null || !item.getAvailable()) {
             throw new ValidationException(ExceptionMessages.ITEM_BE_AVAILABLE);
         }
@@ -40,16 +39,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getById(Integer itemId) {
-        return itemMapper.toDto(itemRepository.getById(itemId));
+        return ItemMapper.toDto(itemRepository.getById(itemId));
     }
 
     @Override
     public ItemDto update(Integer userId, ItemDto itemDto, Integer itemId) {
         userRepository.getById(userId);
         itemDto.setId(itemId);
-        Item item = itemMapper.toEntity(userId, itemDto);
+        Item item = ItemMapper.toEntity(userId, itemDto);
         validate(userId, itemRepository.getById(itemDto.getId()));
-        return itemMapper.toDto(itemRepository.update(item));
+        return ItemMapper.toDto(itemRepository.update(item));
     }
 
     @Override
