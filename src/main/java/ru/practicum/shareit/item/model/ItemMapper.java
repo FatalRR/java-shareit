@@ -1,9 +1,11 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AllArgsConstructor;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+@AllArgsConstructor
 public class ItemMapper {
-    public Item toEntity(Integer ownerId, ItemDto itemDto) {
+    public static Item toEntity(Integer ownerId, ItemDto itemDto) {
         return new Item(itemDto.getId(),
                 itemDto.getName(),
                 itemDto.getDescription(),
@@ -11,7 +13,7 @@ public class ItemMapper {
                 itemDto.getAvailable());
     }
 
-    public ItemDto toDto(Item item) {
+    public static ItemDto toDto(Item item) {
         return new ItemDto(item.getId(),
                 item.getName(),
                 item.getDescription(),
