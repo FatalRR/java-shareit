@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.AlreadyExistException;
+import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.messages.LogMessages;
 
 import javax.validation.Valid;
@@ -28,7 +29,7 @@ public class UserController {
         try {
             return userService.save(user);
         } catch (AlreadyExistException e) {
-            throw new RuntimeException(e);
+            throw new AlreadyExistException(ExceptionMessages.USER_EMAIL_EXIST);
         }
     }
 
