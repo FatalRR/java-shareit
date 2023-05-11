@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.messages.ExceptionMessages;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class ItemRepositoryImpl implements ItemRepository {
@@ -80,15 +81,12 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<ItemDto> getItemByQuery(String query) {
-        List<ItemDto> itemsByQuery = new ArrayList<>();
-        for (List<Item> userItems : items.values()) {
-            for (Item item : userItems) {
-                if (item.getAvailable() && (item.getName().toUpperCase().contains(query.toUpperCase()) ||
-                        item.getDescription().toUpperCase().contains(query.toUpperCase()))) {
-                    itemsByQuery.add(ItemMapper.toDto(item));
-                }
-            }
-        }
-        return itemsByQuery;
+        return items.values().stream()
+                .flatMap(List::stream)
+                .filter(item -> item.getAvailable() &&
+                        (item.getName().toUpperCase().contains(query.toUpperCase()) ||
+                                item.getDescription().toUpperCase().contains(query.toUpperCase())))
+                .map(ItemMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
