@@ -27,7 +27,7 @@ public class UserController {
     public User save(@RequestBody @Valid User user) {
         log.info(String.valueOf(LogMessages.TRY_ADD), user);
         try {
-            return userService.save(user);
+            return userService.saveUser(user);
         } catch (AlreadyExistException e) {
             throw new AlreadyExistException(ExceptionMessages.USER_EMAIL_EXIST);
         }
