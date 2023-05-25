@@ -8,10 +8,10 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemService;
+import ru.practicum.shareit.item.model.ItemRepository;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,13 +21,13 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Slf4j
 public class BookingServiceImpl implements BookingService {
-    private final ItemService itemService;
-    private final UserService userService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
 
     @Override
     public Booking getBookingById(Integer userId, Integer bookingId) {
-        userService.getById(userId);
+        checkUser(userId);
         Booking booking = checkBooking(bookingId);
         User user = booking.getBooker();
         User owner = booking.getItem().getUser();
@@ -39,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getByUserId(Integer userId, String state) {
-        userService.getById(userId);
+        checkUser(userId);
         Status status = Status.valueOf(state.toUpperCase());
         switch (status) {
             case ALL:
@@ -51,15 +51,16 @@ public class BookingServiceImpl implements BookingService {
             case FUTURE:
                 return bookingRepository.findBookingByUserIdAndStarBeforeNow(userId);
             case WAITING:
+                return bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.WAITING);
             case REJECTED:
-                return bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, status);
+                return bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED);
         }
         throw new ValidationException(String.format(ExceptionMessages.UNKNOWN_STATUS));
     }
 
     @Override
     public List<Booking> getByOwnerId(Integer userId, String state) {
-        userService.getById(userId);
+        checkUser(userId);
         Status status = Status.valueOf(state.toUpperCase());
         switch (status) {
             case ALL:
@@ -71,8 +72,9 @@ public class BookingServiceImpl implements BookingService {
             case FUTURE:
                 return bookingRepository.findBookingByOwnerIdAndStarBeforeNow(userId);
             case WAITING:
+                 return bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.WAITING);
             case REJECTED:
-                return bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, status);
+                return bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED);
         }
         throw new ValidationException(String.format(ExceptionMessages.UNKNOWN_STATUS));
     }
@@ -80,7 +82,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public Booking approveBooking(Integer userId, Integer bookingId, boolean approve) {
-        userService.getById(userId);
+        checkUser(userId);
         Booking booking = checkBooking(bookingId);
         if (booking.getStatus().equals(Status.APPROVED)) {
             throw new ValidationException(String.format(ExceptionMessages.ALREADY_APPROVED, bookingId));
@@ -104,8 +106,9 @@ public class BookingServiceImpl implements BookingService {
         if (!bookingDto.getStart().isBefore(bookingDto.getEnd())) {
             throw new ValidationException(ExceptionMessages.DATE_BOOKING);
         }
-        User user = userService.getById(userId);
-        Item item = itemService.getById(bookingDto.getItemId());
+        User user = checkUser(userId);
+        Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() ->
+                new NotFoundException(String.format(ExceptionMessages.NOT_ITEM, bookingDto.getItemId())));
         if (Objects.equals(userId, item.getUser().getId())) {
             throw new NotFoundException(String.format(ExceptionMessages.NOT_BOOKER, userId));
         }
@@ -121,5 +124,10 @@ public class BookingServiceImpl implements BookingService {
     private Booking checkBooking(Integer bookingId) {
         return bookingRepository.findById(bookingId).orElseThrow(() ->
                 new NotFoundException(String.format(ExceptionMessages.NOT_FOUND_BOOKING, bookingId)));
+    }
+
+    private User checkUser(Integer userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
     }
 }
