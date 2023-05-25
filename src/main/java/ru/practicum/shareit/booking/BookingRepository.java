@@ -16,6 +16,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     Optional<Booking> findFirstByItemIdAndEndAfterAndStatusOrderByStartAsc(Integer id, LocalDateTime end, Status status);
 
+    List<Booking> findFirstByItemIdInAndStartBeforeAndStatusOrderByStartDesc(List<Integer> itemIds, LocalDateTime now, Status status);
+
+    List<Booking> findFirstByItemIdInAndEndAfterAndStatusOrderByStartAsc(List<Integer> itemIds, LocalDateTime now, Status status);
+
     @Query("select b " +
             "from Booking as b " +
             "join b.booker as u " +
