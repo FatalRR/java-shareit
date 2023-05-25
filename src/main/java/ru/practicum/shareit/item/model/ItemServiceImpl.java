@@ -19,6 +19,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+//import java.util.stream.StreamSupport;
 
 @Service
 @Transactional(readOnly = true)
@@ -65,6 +66,37 @@ public class ItemServiceImpl implements ItemService {
                 item.getId(), now, Status.APPROVED).orElse(null);
         return (nextBookingForDto != null) ? BookingMapper.toDto(nextBookingForDto) : null;
     }
+
+/*   private List<ItemWithBooking> mapToItemWithBooking(Iterable<Item> items) {
+        List<Integer> itemIds = StreamSupport.stream(items.spliterator(), false)
+                .map(Item::getId)
+                .collect(Collectors.toList());
+
+        List<Booking> lastBookings = bookingRepository.findFirstByItemIdInAndStartBeforeAndStatusOrderByStartDesc(
+                itemIds, LocalDateTime.now(), Status.APPROVED);
+        List<Booking> nextBookings = bookingRepository.findFirstByItemIdInAndEndAfterAndStatusOrderByStartAsc(
+                itemIds, LocalDateTime.now(), Status.APPROVED);
+        List<Comment> comments = commentRepository.findAllByItemIdIn(itemIds);
+
+        Map<Integer, BookingDto> lastBookingMap = lastBookings.stream()
+                .collect(Collectors.toMap(Booking::getId, BookingMapper::toDto));
+        Map<Integer, BookingDto> nextBookingMap = nextBookings.stream()
+                .collect(Collectors.toMap(Booking::getId, BookingMapper::toDto));
+        Map<Integer, List<Comment>> commentsMap = comments.stream()
+                .collect(Collectors.groupingBy(Comment::getId));
+
+        List<ItemWithBooking> itemWithBookings = new ArrayList<>();
+        for (Item item : items) {
+            BookingDto lastBooking = lastBookingMap.get(item.getId());
+            BookingDto nextBooking = nextBookingMap.get(item.getId());
+            List<Comment> itemComments = commentsMap.getOrDefault(item.getId(), new ArrayList<>());
+//            lastBooking = (lastBooking != null) ? lastBooking : new BookingDto();
+//            nextBooking = (nextBooking != null) ? nextBooking : new BookingDto();
+            itemWithBookings.add(ItemMapper.toEntityWithBooking(item, lastBooking, nextBooking, itemComments));
+        }
+
+        return itemWithBookings;
+    }*/
 
     @Override
     public Collection<ItemWithBooking> getItems(Integer userId) {
