@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
@@ -8,7 +8,7 @@ import ru.practicum.shareit.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor
+@UtilityClass
 public class ItemMapper {
     public static Item toEntity(User user, ItemDto itemDto) {
         Item item = new Item();
