@@ -8,19 +8,19 @@ import java.util.List;
 
 @Data
 public class ItemWithBooking {
-    Integer id;
+    private Integer id;
 
-    String name;
+    private String name;
 
-    String description;
+    private String description;
 
-    User user;
+    private User user;
 
-    Boolean available;
+    private Boolean available;
 
-    BookingDto lastBooking;
+    private BookingDto lastBooking;
 
-    BookingDto nextBooking;
+    private BookingDto nextBooking;
 
-    List<Comment> comments;
+    private List<Comment> comments;
 }
