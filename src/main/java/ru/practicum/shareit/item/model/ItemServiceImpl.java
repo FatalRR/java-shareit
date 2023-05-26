@@ -89,14 +89,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public Item save(Integer userId, ItemDto itemDto) {
+    public ItemDto save(Integer userId, ItemDto itemDto) {
         if (itemDto.getAvailable() == null || !itemDto.getAvailable()) {
             throw new ValidationException(ExceptionMessages.ITEM_BE_AVAILABLE);
         }
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
         Item item = ItemMapper.toEntity(user, itemDto);
-        return itemRepository.save(item);
+        return ItemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
@@ -146,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentDto addNewComment(Integer userId, Comment comment, Integer itemId) {
+    public CommentDto addNewComment(Integer userId, CommentDto commentDto, Integer itemId) {
         List<Booking> bookings = bookingRepository.findBookingByUserIdAndFinishAfterNow(userId);
         boolean userIsBooker = bookings.stream()
                 .anyMatch(booking -> Objects.equals(booking.getItem().getId(), itemId));
@@ -154,6 +154,8 @@ public class ItemServiceImpl implements ItemService {
         if (!userIsBooker) {
             throw new ValidationException(ExceptionMessages.BOOKING_NOT_CONFIRMED);
         }
+
+        Comment comment = CommentMapper.toEntity(commentDto);
 
         comment.setItem(itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_ITEM)));
