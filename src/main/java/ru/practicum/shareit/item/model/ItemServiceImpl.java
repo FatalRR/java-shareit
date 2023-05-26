@@ -155,10 +155,11 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException(ExceptionMessages.BOOKING_NOT_CONFIRMED);
         }
 
-        Comment comment = CommentMapper.toEntity(commentDto);
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_ITEM));
 
-        comment.setItem(itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_ITEM)));
+        Comment comment = CommentMapper.toEntity(item, commentDto);
+
         comment.setAuthorName(userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND))
                 .getName());

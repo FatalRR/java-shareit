@@ -11,17 +11,17 @@ public class CommentMapper {
     public static CommentDto toDto(Comment comment) {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
-        commentDto.setItem(comment.getItem());
+        commentDto.setItemId(comment.getItem().getId());
         commentDto.setAuthorName(comment.getAuthorName());
         commentDto.setCreated(comment.getCreated());
         commentDto.setText(comment.getText());
         return commentDto;
     }
 
-    public static Comment toEntity(CommentDto commentDto) {
+    public static Comment toEntity(Item item, CommentDto commentDto) {
         Comment comment = new Comment();
         comment.setId(commentDto.getId());
-        comment.setItem(commentDto.getItem());
+        comment.setItem(item);
         comment.setAuthorName(commentDto.getAuthorName());
         comment.setCreated(commentDto.getCreated());
         comment.setText(commentDto.getText());
