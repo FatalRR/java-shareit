@@ -18,37 +18,37 @@ public class BookingController {
     private static final String USERID = "X-Sharer-User-Id";
 
     @GetMapping("/{bookingId}")
-    public Booking getById(@RequestHeader(USERID) Integer userId,
-                           @PathVariable Integer bookingId) {
+    public BookingDto getById(@RequestHeader(USERID) Integer userId,
+                              @PathVariable Integer bookingId) {
         log.info(String.valueOf(LogMessages.TRY_GET_BOOKING), bookingId);
         return bookingService.getBookingById(userId, bookingId);
     }
 
     @GetMapping
-    public List<Booking> getByUserId(@RequestHeader(USERID) Integer userId,
-                                     @RequestParam(defaultValue = "ALL") String state) {
+    public List<BookingDto> getByUserId(@RequestHeader(USERID) Integer userId,
+                                        @RequestParam(defaultValue = "ALL") String state) {
         log.info(String.valueOf(LogMessages.TRY_GET_BOOKING_BY_USER_ID), userId);
         return bookingService.getByUserId(userId, state);
     }
 
     @GetMapping("/owner")
-    public List<Booking> getByOwnerId(@RequestHeader(USERID) Integer userId,
-                                      @RequestParam(defaultValue = "ALL") String state) {
+    public List<BookingDto> getByOwnerId(@RequestHeader(USERID) Integer userId,
+                                         @RequestParam(defaultValue = "ALL") String state) {
         log.info(String.valueOf(LogMessages.TRY_GET_BOOKING_BY_OWNER_ID), userId);
         return bookingService.getByOwnerId(userId, state);
     }
 
     @PatchMapping("/{bookingId}")
-    public Booking approveBooking(@RequestHeader(USERID) Integer userId,
-                                  @PathVariable Integer bookingId,
-                                  @RequestParam boolean approved) {
+    public BookingDto approveBooking(@RequestHeader(USERID) Integer userId,
+                                     @PathVariable Integer bookingId,
+                                     @RequestParam boolean approved) {
         log.info(String.valueOf(LogMessages.TRY_APPROVE), bookingId);
         return bookingService.approveBooking(userId, bookingId, approved);
     }
 
     @PostMapping
-    public Booking save(@RequestHeader(USERID) Integer userId,
-                        @RequestBody @Valid BookingDto bookingDto) {
+    public BookingDto save(@RequestHeader(USERID) Integer userId,
+                           @RequestBody @Valid BookingDto bookingDto) {
         log.info(String.valueOf(LogMessages.TRY_ADD), bookingDto);
         return bookingService.addNewBooking(userId, bookingDto);
     }
