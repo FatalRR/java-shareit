@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,10 +16,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Optional<Booking> findFirstByItemIdAndStartBeforeAndStatusOrderByStartDesc(Integer id, LocalDateTime start, Status status);
 
     Optional<Booking> findFirstByItemIdAndEndAfterAndStatusOrderByStartAsc(Integer id, LocalDateTime end, Status status);
-
-    List<Booking> findFirstByItemIdInAndStartBeforeAndStatusOrderByStartDesc(List<Integer> itemIds, LocalDateTime now, Status status);
-
-    List<Booking> findFirstByItemIdInAndEndAfterAndStatusOrderByStartAsc(List<Integer> itemIds, LocalDateTime now, Status status);
 
     @Query("select b " +
             "from Booking as b " +
@@ -103,4 +100,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "and b.start > current_timestamp " +
             "order by b.start desc")
     List<Booking> findBookingByOwnerIdAndStarBeforeNow(Integer userId);
+
+    List<Booking> findByItemIn(Iterable<Item> items);
 }
