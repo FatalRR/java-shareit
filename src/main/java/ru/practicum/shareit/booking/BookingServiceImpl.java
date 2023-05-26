@@ -26,62 +26,62 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
 
     @Override
-    public Booking getBookingById(Integer userId, Integer bookingId) {
+    public BookingDto getBookingById(Integer userId, Integer bookingId) {
         checkUser(userId);
         Booking booking = checkBooking(bookingId);
         User user = booking.getBooker();
         User owner = booking.getItem().getUser();
         if (Objects.equals(userId, user.getId()) || Objects.equals(userId, owner.getId())) {
-            return booking;
+            return BookingMapper.toDto(booking);
         }
         throw new NotFoundException(String.format(ExceptionMessages.NOT_BOOKER, userId));
     }
 
     @Override
-    public List<Booking> getByUserId(Integer userId, String state) {
+    public List<BookingDto> getByUserId(Integer userId, String state) {
         checkUser(userId);
         Status status = Status.valueOf(state.toUpperCase());
         switch (status) {
             case ALL:
-                return bookingRepository.findByUserId(userId);
+                return BookingMapper.toDtoList(bookingRepository.findByUserId(userId));
             case CURRENT:
-                return bookingRepository.findCurrentByUserId(userId);
+                return BookingMapper.toDtoList(bookingRepository.findCurrentByUserId(userId));
             case PAST:
-                return bookingRepository.findBookingByUserIdAndFinishAfterNow(userId);
+                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndFinishAfterNow(userId));
             case FUTURE:
-                return bookingRepository.findBookingByUserIdAndStarBeforeNow(userId);
+                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndStarBeforeNow(userId));
             case WAITING:
-                return bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.WAITING);
+                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.WAITING));
             case REJECTED:
-                return bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED);
+                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED));
         }
         throw new ValidationException(String.format(ExceptionMessages.UNKNOWN_STATUS));
     }
 
     @Override
-    public List<Booking> getByOwnerId(Integer userId, String state) {
+    public List<BookingDto> getByOwnerId(Integer userId, String state) {
         checkUser(userId);
         Status status = Status.valueOf(state.toUpperCase());
         switch (status) {
             case ALL:
-                return bookingRepository.findByOwnerId(userId);
+                return BookingMapper.toDtoList(bookingRepository.findByOwnerId(userId));
             case CURRENT:
-                return bookingRepository.findCurrentByOwnerId(userId);
+                return BookingMapper.toDtoList(bookingRepository.findCurrentByOwnerId(userId));
             case PAST:
-                return bookingRepository.findPastByOwnerId(userId);
+                return BookingMapper.toDtoList(bookingRepository.findPastByOwnerId(userId));
             case FUTURE:
-                return bookingRepository.findBookingByOwnerIdAndStarBeforeNow(userId);
+                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndStarBeforeNow(userId));
             case WAITING:
-                 return bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.WAITING);
+                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.WAITING));
             case REJECTED:
-                return bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED);
+                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED));
         }
         throw new ValidationException(String.format(ExceptionMessages.UNKNOWN_STATUS));
     }
 
     @Transactional
     @Override
-    public Booking approveBooking(Integer userId, Integer bookingId, boolean approve) {
+    public BookingDto approveBooking(Integer userId, Integer bookingId, boolean approve) {
         checkUser(userId);
         Booking booking = checkBooking(bookingId);
         if (booking.getStatus().equals(Status.APPROVED)) {
@@ -97,12 +97,12 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(Status.REJECTED);
         }
         bookingRepository.save(booking);
-        return booking;
+        return BookingMapper.toDto(booking);
     }
 
     @Transactional
     @Override
-    public Booking addNewBooking(Integer userId, BookingDto bookingDto) {
+    public BookingDto addNewBooking(Integer userId, BookingDto bookingDto) {
         if (!bookingDto.getStart().isBefore(bookingDto.getEnd())) {
             throw new ValidationException(ExceptionMessages.DATE_BOOKING);
         }
@@ -118,7 +118,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = BookingMapper.toEntity(user, item, bookingDto);
         booking.setStatus(Status.WAITING);
         bookingRepository.save(booking);
-        return booking;
+        return BookingMapper.toDto(booking);
     }
 
     private Booking checkBooking(Integer bookingId) {
