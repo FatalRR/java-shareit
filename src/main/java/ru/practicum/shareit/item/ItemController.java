@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemService;
 import ru.practicum.shareit.item.model.ItemWithBooking;
 import ru.practicum.shareit.messages.LogMessages;
@@ -43,7 +41,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public Item save(@RequestHeader(USERID) Integer userId,
+    public ItemDto save(@RequestHeader(USERID) Integer userId,
                      @RequestBody @Valid ItemDto itemDto) {
         log.info(String.valueOf(LogMessages.TRY_ADD), itemDto);
         return itemService.save(userId, itemDto);
@@ -66,9 +64,9 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@RequestHeader(USERID) Integer userId,
-                                 @RequestBody @Valid Comment comment,
+                                 @RequestBody @Valid CommentDto commentDto,
                                  @PathVariable Integer itemId) {
-        log.info(String.valueOf(LogMessages.TRY_ADD), comment);
-        return itemService.addNewComment(userId, comment, itemId);
+        log.info(String.valueOf(LogMessages.TRY_ADD), commentDto);
+        return itemService.addNewComment(userId, commentDto, itemId);
     }
 }
