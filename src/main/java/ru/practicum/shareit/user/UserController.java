@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.AlreadyExistException;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.messages.LogMessages;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,29 +19,30 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> getAll() {
+    public List<UserDto> getAll() {
         log.info(String.valueOf(LogMessages.COUNT), userService.getAll().size());
         return userService.getAll();
     }
 
     @PostMapping
-    public User save(@RequestBody @Valid User user) {
-        log.info(String.valueOf(LogMessages.TRY_ADD), user);
+    public UserDto save(@RequestBody @Valid UserDto userDto) {
+        log.info(String.valueOf(LogMessages.TRY_ADD), userDto);
         try {
-            return userService.saveUser(user);
+            return userService.saveUser(userDto);
         } catch (AlreadyExistException e) {
             throw new AlreadyExistException(ExceptionMessages.USER_EMAIL_EXIST);
         }
     }
 
     @PatchMapping("/{userId}")
-    public User update(@RequestBody User user, @PathVariable Integer userId) {
-        log.info(String.valueOf(LogMessages.TRY_UPDATE), user);
-        return userService.update(userId, user);
+    public UserDto update(@RequestBody UserDto userDto,
+                          @PathVariable Integer userId) {
+        log.info(String.valueOf(LogMessages.TRY_UPDATE), userDto);
+        return userService.update(userId, userDto);
     }
 
     @GetMapping("/{userId}")
-    public User getById(@PathVariable Integer userId) {
+    public UserDto getById(@PathVariable Integer userId) {
         log.info(String.valueOf(LogMessages.TRY_GET_OBJECT), userId);
         return userService.getById(userId);
     }
