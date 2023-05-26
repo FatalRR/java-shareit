@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ItemService {
 
-    Item save(Integer userId, ItemDto itemDto);
+    ItemDto save(Integer userId, ItemDto itemDto);
 
     Item getById(Integer itemId);
 
@@ -18,7 +18,7 @@ public interface ItemService {
 
     void removeById(Integer userId, Integer itemId);
 
-    CommentDto addNewComment(Integer userId, Comment comment, Integer itemId);
+    CommentDto addNewComment(Integer userId, CommentDto commentDto, Integer itemId);
 
     ItemWithBooking getItemById(Integer userId, Integer itemId);
 
