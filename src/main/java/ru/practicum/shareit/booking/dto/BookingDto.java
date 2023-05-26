@@ -25,6 +25,5 @@ public class BookingDto {
     private LocalDateTime start;
 
     @NotNull(message = ExceptionMessages.NOT_EMPTY_DATE)
-    @Future(message = ExceptionMessages.NOT_FUTURE_DATE)
     private LocalDateTime end;
 }
