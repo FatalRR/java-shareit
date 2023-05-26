@@ -3,6 +3,9 @@ package ru.practicum.shareit.booking.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.Status;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.messages.ExceptionMessages;
 
 import javax.validation.constraints.Future;
@@ -26,4 +29,10 @@ public class BookingDto {
 
     @NotNull(message = ExceptionMessages.NOT_EMPTY_DATE)
     private LocalDateTime end;
+
+    private Status status;
+
+    private User booker;
+
+    private Item item;
 }
