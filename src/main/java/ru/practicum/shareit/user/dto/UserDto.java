@@ -15,7 +15,7 @@ public class UserDto {
     private Integer id;
     @NotBlank(message = ExceptionMessages.EMPTY_NAME)
     private String name;
-    @NotBlank
+    @NotBlank(message = ExceptionMessages.INCORRECT_EMAIL)
     @Email(message = ExceptionMessages.INCORRECT_EMAIL)
     private String email;
 }
