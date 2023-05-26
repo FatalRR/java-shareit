@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.User;
@@ -57,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
         for (Item item : items) {
             BookingDto lastBooking = getLastBookingDtoForItem(item, now, bookingsMap.getOrDefault(item, Collections.emptyList()));
             BookingDto nextBooking = getNextBookingDtoForItem(item, now, bookingsMap.getOrDefault(item, Collections.emptyList()));
-            List<Comment> itemComments = comments.getOrDefault(item, Collections.emptyList());
+            List<CommentDto> itemComments = CommentMapper.toDtoList(comments.getOrDefault(item, Collections.emptyList()));
             itemWithBookings.add(ItemMapper.toEntityWithBooking(item, lastBooking, nextBooking, itemComments));
         }
 
@@ -145,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Comment addNewComment(Integer userId, Comment comment, Integer itemId) {
+    public CommentDto addNewComment(Integer userId, Comment comment, Integer itemId) {
         List<Booking> bookings = bookingRepository.findBookingByUserIdAndFinishAfterNow(userId);
         boolean userIsBooker = bookings.stream()
                 .anyMatch(booking -> Objects.equals(booking.getItem().getId(), itemId));
@@ -161,7 +162,7 @@ public class ItemServiceImpl implements ItemService {
                 .getName());
         comment.setCreated(LocalDateTime.now());
 
-        return commentRepository.save(comment);
+        return CommentMapper.toDto(commentRepository.save(comment));
     }
 
     @Override
@@ -190,7 +191,7 @@ public class ItemServiceImpl implements ItemService {
             }
         }
 
-        List<Comment> comments = commentRepository.findAllByItemId(itemId);
+        List<CommentDto> comments = CommentMapper.toDtoList(commentRepository.findAllByItemId(itemId));
         return ItemMapper.toEntityWithBooking(item, lastBooking, nextBooking, comments);
     }
 }
