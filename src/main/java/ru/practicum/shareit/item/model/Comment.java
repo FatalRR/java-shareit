@@ -1,10 +1,8 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.Data;
-import ru.practicum.shareit.messages.ExceptionMessages;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Data
@@ -25,6 +23,5 @@ public class Comment {
     private LocalDateTime created;
 
     @Column
-    @NotBlank(message = ExceptionMessages.NOT_EMPTY_TEXT)
     private String text;
 }
