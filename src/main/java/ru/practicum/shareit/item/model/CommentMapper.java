@@ -18,6 +18,16 @@ public class CommentMapper {
         return commentDto;
     }
 
+    public static Comment toEntity(CommentDto commentDto) {
+        Comment comment = new Comment();
+        comment.setId(commentDto.getId());
+        comment.setItem(commentDto.getItem());
+        comment.setAuthorName(commentDto.getAuthorName());
+        comment.setCreated(commentDto.getCreated());
+        comment.setText(commentDto.getText());
+        return comment;
+    }
+
     public static List<CommentDto> toDtoList(List<Comment> comments) {
         return comments.stream()
                 .map(CommentMapper::toDto)
