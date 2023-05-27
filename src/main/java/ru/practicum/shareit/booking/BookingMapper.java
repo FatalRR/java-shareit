@@ -21,14 +21,25 @@ public class BookingMapper {
     }
 
     public static BookingDto toDto(Booking booking) {
-        return new BookingDto(booking.getId(),
-                booking.getItem().getId(),
-                booking.getBooker().getId(),
-                booking.getStart(),
-                booking.getEnd(),
-                booking.getStatus(),
-                booking.getBooker(),
-                booking.getItem());
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setId(booking.getId());
+
+        BookingDto.Booker user = new BookingDto.Booker();
+        user.setId(booking.getBooker().getId());
+        user.setName(booking.getBooker().getName());
+        bookingDto.setBooker(user);
+
+        BookingDto.ItemBooking item = new BookingDto.ItemBooking();
+        item.setId(booking.getItem().getId());
+        item.setName(booking.getItem().getName());
+        bookingDto.setItem(item);
+        bookingDto.setItemId(booking.getItem().getId());
+        bookingDto.setBookerId(booking.getBooker().getId());
+        bookingDto.setStart(booking.getStart());
+        bookingDto.setEnd(booking.getEnd());
+        bookingDto.setStatus(booking.getStatus());
+
+        return bookingDto;
     }
 
     public static List<BookingDto> toDtoList(List<Booking> bookings) {
