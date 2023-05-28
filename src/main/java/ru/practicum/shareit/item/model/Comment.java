@@ -1,27 +1,27 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.Data;
-import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "items")
-public class Item {
+@Table(name = "comments")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column
-    private String name;
-
-    @Column
-    private String description;
-
     @ManyToOne
-    private User user;
+    private Item item;
 
     @Column
-    private Boolean available;
+    private String authorName;
+
+    @Column
+    private LocalDateTime created;
+
+    @Column
+    private String text;
 }

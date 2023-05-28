@@ -1,17 +1,20 @@
 package ru.practicum.shareit.user;
 
 import lombok.Data;
-import ru.practicum.shareit.messages.ExceptionMessages;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.*;
 
 @Data
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @NotBlank(message = ExceptionMessages.EMPTY_NAME)
+
+    @Column(name = "name", nullable = false)
     private String name;
-    @NotBlank
-    @Email(message = ExceptionMessages.INCORRECT_EMAIL)
+
+    @Column(name = "email", nullable = false)
     private String email;
 }

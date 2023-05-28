@@ -9,7 +9,11 @@ public enum LogMessages {
     ERROR_404("Ошибка 404: {}"),
     ERROR_400("Ошибка 400: {}"),
     ERROR_409("Ошибка 409: {}"),
-    ERROR_500("Ошибка 500: {}");
+    ERROR_500("Ошибка 500: {}"),
+    TRY_GET_BOOKING("Потытка получить бронирование с ID: {}"),
+    TRY_GET_BOOKING_BY_USER_ID("Потытка получить бронирование по ID пользователя: {}"),
+    TRY_GET_BOOKING_BY_OWNER_ID("Потытка получить бронирование по ID владельца: {}"),
+    TRY_APPROVE("Попытка подтвердить бронирование с ID {}");
 
     private final String textLog;
 
