@@ -18,6 +18,7 @@ public class ItemMapper {
         item.setDescription(itemDto.getDescription());
         item.setUser(user);
         item.setAvailable(itemDto.getAvailable());
+        item.setRequestId(itemDto.getRequestId());
         return item;
     }
 
@@ -25,7 +26,8 @@ public class ItemMapper {
         return new ItemDto(item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.getAvailable());
+                item.getAvailable(),
+                item.getRequestId());
     }
 
     public static List<ItemDto> mapToItemDto(Iterable<Item> items) {
@@ -36,7 +38,7 @@ public class ItemMapper {
         return dtoItems;
     }
 
-    public static ItemWithBooking toEntityWithBooking(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> comments) {
+/*    public static ItemWithBooking toEntityWithBooking(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> comments) {
         ItemWithBooking itemWithBooking = new ItemWithBooking();
         itemWithBooking.setId(item.getId());
         itemWithBooking.setName(item.getName());
@@ -46,6 +48,21 @@ public class ItemMapper {
         itemWithBooking.setLastBooking(lastBooking);
         itemWithBooking.setNextBooking(nextBooking);
         itemWithBooking.setComments(comments);
+        itemWithBooking.setRequestId(item.getRequestId());
+        return itemWithBooking;
+    }*/
+
+    public static ItemWithBooking toEntityWithBooking(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> comments) {
+        ItemWithBooking itemWithBooking = new ItemWithBooking();
+        itemWithBooking.setId(item.getId());
+        itemWithBooking.setName(item.getName());
+        itemWithBooking.setDescription(item.getDescription());
+        itemWithBooking.setUserId(item.getUser() != null ? item.getUser().getId() : null);
+        itemWithBooking.setAvailable(item.getAvailable());
+        itemWithBooking.setLastBooking(lastBooking);
+        itemWithBooking.setNextBooking(nextBooking);
+        itemWithBooking.setComments(comments);
+        itemWithBooking.setRequestId(item.getRequestId());
         return itemWithBooking;
     }
 }

@@ -24,4 +24,7 @@ public class Item {
 
     @Column
     private Boolean available;
+
+    @Column(name = "request_id")
+    private Integer requestId;
 }

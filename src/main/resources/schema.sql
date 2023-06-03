@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, items, bookings, comments CASCADE;
+DROP TABLE IF EXISTS users, items, bookings, comments, item_request CASCADE;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS items
     count       BIGINT,
     available   varchar(50),
     name        varchar(100),
+    request_id BIGINT,
     CONSTRAINT fk_items_to_users FOREIGN KEY (user_id) REFERENCES users (id),
     UNIQUE (id)
 );
@@ -40,5 +41,16 @@ CREATE TABLE IF NOT EXISTS bookings
     finish  timestamp,
     CONSTRAINT fk_booking_to_users FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_booking_to_items FOREIGN KEY (item_id) REFERENCES items (id),
+    UNIQUE (id)
+);
+
+CREATE TABLE IF NOT EXISTS item_request
+(
+    id          BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL PRIMARY KEY,
+    user_id     BIGINT,
+
+    description varchar(1000),
+    created     timestamp,
+
     UNIQUE (id)
 );

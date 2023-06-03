@@ -9,5 +9,6 @@ public enum Status {
     PAST,
     FUTURE,
     CANCELED,
-    UNSUPPORTED_STATUS
+    UNSUPPORTED_STATUS,
+    WRONG
 }

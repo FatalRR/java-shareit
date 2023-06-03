@@ -10,6 +10,8 @@ import ru.practicum.shareit.item.model.ItemWithBooking;
 import ru.practicum.shareit.messages.LogMessages;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,9 +24,11 @@ public class ItemController {
     private static final String USERID = "X-Sharer-User-Id";
 
     @GetMapping
-    public Collection<ItemWithBooking> get(@RequestHeader(USERID) Integer userId) {
-        log.info(String.valueOf(LogMessages.COUNT), itemService.getItems(userId).size());
-        return itemService.getItems(userId);
+    public Collection<ItemWithBooking> get(@RequestHeader(USERID) Integer userId,
+                                           @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                           @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(100) Integer size) {
+        log.info(String.valueOf(LogMessages.COUNT), itemService.getItems(userId, from, size).size());
+        return itemService.getItems(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -35,9 +39,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getById(@RequestParam(name = "text") String query) {
+    public List<ItemDto> getById(@RequestParam(name = "text") String query,
+                                 @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                 @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(100) Integer size) {
         log.info(String.valueOf(LogMessages.TRY_GET_OBJECT), query);
-        return itemService.getByQuery(query);
+        return itemService.getByQuery(query, from, size);
     }
 
     @PostMapping
