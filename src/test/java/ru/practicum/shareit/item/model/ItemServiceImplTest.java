@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.model;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -71,6 +73,15 @@ class ItemServiceImplTest {
     }
 
     @Test
+    public void getItems_InvalidUserId_ThrowsValidationException() {
+        Integer userId = 1;
+        Integer from = -1;
+        Integer size = 10;
+
+        assertThrows(ValidationException.class, () -> itemService.getItems(userId, from, size));
+    }
+
+    @Test
     public void save_ValidUserIdAndItemDto_ReturnsItemDto() {
         Integer userId = 1;
         ItemDto itemDto = new ItemDto();
@@ -95,6 +106,14 @@ class ItemServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> itemService.save(userId, itemDto));
+    }
+
+    @Test
+    public void save_InvalidUserId_ThrowsValidationException() {
+        Integer userId = 1;
+        ItemDto itemDto = new ItemDto();
+
+        assertThrows(ValidationException.class, () -> itemService.save(userId, itemDto));
     }
 
     @Test
@@ -184,6 +203,17 @@ class ItemServiceImplTest {
         List<ItemDto> result = itemService.getByQuery(query, from, size);
 
         Assertions.assertEquals(2, result.size());
+    }
+
+    @Test
+    public void getByQuery_EmptyQuery_ReturnsEmptyItemDtoList() {
+        String query = "";
+        Integer from = 0;
+        Integer size = 10;
+
+        List<ItemDto> result = itemService.getByQuery(query, from, size);
+
+        Assertions.assertEquals(0, result.size());
     }
 
     @Test
@@ -320,4 +350,71 @@ class ItemServiceImplTest {
         verify(bookingRepository).getBookingByBookerIdAndItemIdAndEndBeforeOrderByStartDesc(eq(user.getId()), eq(item.getId()), any(LocalDateTime.class));
         verify(itemRepository).findById(item.getId());
     }
+
+    @Test
+    public void testGetItemById_WithMatchingUserId() {
+        Integer userId = 1;
+        Integer itemId = 1;
+
+        User user = new User();
+        user.setId(1);
+        user.setName("User1");
+
+        Item item = new Item();
+        item.setId(itemId);
+        item.setUser(user);
+        item.getUser().setId(userId);
+
+        Booking booking1 = new Booking();
+        booking1.setId(1);
+        booking1.setStart(LocalDateTime.now().minusDays(2));
+        booking1.setStatus(Status.APPROVED);
+        booking1.setBooker(user);
+        booking1.setItem(item);
+
+        Booking booking2 = new Booking();
+        booking2.setId(2);
+        booking2.setStart(LocalDateTime.now().plusDays(2));
+        booking2.setStatus(Status.APPROVED);
+        booking2.setBooker(new User());
+        booking2.setItem(item);
+
+        Comment comment = new Comment();
+        comment.setId(1);
+        comment.setText("Test comment");
+        comment.setItem(item);
+        comment.setAuthorName(user.getName());
+        comment.setCreated(LocalDateTime.now());
+
+        List<Comment> comments = new ArrayList<>();
+        comments.add(comment);
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(bookingRepository.findFirstByItemIdAndStartBeforeAndStatusOrderByStartDesc(
+                eq(itemId), ArgumentMatchers.<LocalDateTime>any(), eq(Status.APPROVED)))
+                .thenReturn(Optional.of(booking1));
+        when(bookingRepository.findFirstByItemIdAndEndAfterAndStatusOrderByStartAsc(
+                eq(itemId), ArgumentMatchers.<LocalDateTime>any(), eq(Status.APPROVED)))
+                .thenReturn(Optional.of(booking2));
+        when(commentRepository.findAllByItemId(itemId)).thenReturn(comments);
+
+        ItemWithBooking result = itemService.getItemById(userId, itemId);
+
+        assertEquals(item.getId(), result.getId());
+        assertEquals(item.getName(), result.getName());
+        assertEquals(item.getDescription(), result.getDescription());
+        assertEquals(item.getUser().getId(), result.getUserId());
+        assertEquals(item.getAvailable(), result.getAvailable());
+        assertEquals(booking1.getId(), result.getLastBooking().getId());
+        assertEquals(booking2.getId(), result.getNextBooking().getId());
+        assertEquals(comment.getId(), result.getComments().get(0).getId());
+
+        verify(itemRepository).findById(itemId);
+        verify(bookingRepository).findFirstByItemIdAndStartBeforeAndStatusOrderByStartDesc(
+                eq(itemId), ArgumentMatchers.<LocalDateTime>any(), eq(Status.APPROVED));
+        verify(bookingRepository).findFirstByItemIdAndEndAfterAndStatusOrderByStartAsc(
+                eq(itemId), ArgumentMatchers.<LocalDateTime>any(), eq(Status.APPROVED));
+        verify(commentRepository).findAllByItemId(itemId);
+    }
+
 }

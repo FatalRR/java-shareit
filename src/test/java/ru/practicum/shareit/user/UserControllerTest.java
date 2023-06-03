@@ -1,10 +1,14 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.exception.AlreadyExistException;
+import ru.practicum.shareit.exception.ErrorHandler;
+import ru.practicum.shareit.exception.ErrorResponse;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
@@ -37,6 +41,15 @@ class UserControllerTest {
         UserDto response = userController.save(user);
 
         assertEquals(user, response);
+    }
+    @Test
+    @DisplayName("Test save method with AlreadyExistException")
+    void saveTestWithException() {
+        UserDto user = new UserDto();
+
+        when(userService.saveUser(user)).thenThrow(AlreadyExistException.class);
+
+        assertThrows(AlreadyExistException.class, () -> userController.save(user));
     }
 
     @Test

@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemRepository;
+import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -115,6 +116,8 @@ class BookingServiceImplTest {
         assertEquals(BookingMapper.toDtoList(bookings), actualBookingListFuture);
         List<BookingDto> actualBookingListWaiting = bookingService.getByUserId(1, "WAITING", 1, 10);
         assertEquals(BookingMapper.toDtoList(bookings), actualBookingListWaiting);
+        List<BookingDto> actualBookingListRejected = bookingService.getByUserId(1, "REJECTED", 1, 10);
+        assertEquals(BookingMapper.toDtoList(bookings), actualBookingListRejected);
         assertThrows(ValidationException.class,
                 () -> bookingService.getByUserId(1, "WRONG", 1, 10));
     }
@@ -151,9 +154,25 @@ class BookingServiceImplTest {
         assertEquals(BookingMapper.toDtoList(bookings), actualBookingListFuture);
         List<BookingDto> actualBookingListWaiting = bookingService.getByOwnerId(1, "WAITING", 1, 10);
         assertEquals(BookingMapper.toDtoList(bookings), actualBookingListWaiting);
+        List<BookingDto> actualBookingListRejected = bookingService.getByOwnerId(1, "REJECTED", 1, 10);
+        assertEquals(BookingMapper.toDtoList(bookings), actualBookingListRejected);
 
         assertThrows(ValidationException.class,
                 () -> bookingService.getByOwnerId(1, "WRONG", 1, 10));
+    }
+
+    @Test
+    void getByOwnerIdTestAndThrowExceptionIfFromIsNegative() {
+        when(userRepository.findById(1)).thenReturn(Optional.of(new User()));
+        assertThrows(ValidationException.class,
+                () -> bookingService.getByOwnerId(1, "ALL", -1, 10));
+    }
+
+    @Test
+    void getByUserIdTestAndThrowExceptionIfFromIsNegative() {
+        when(userRepository.findById(1)).thenReturn(Optional.of(new User()));
+        assertThrows(ValidationException.class,
+                () -> bookingService.getByUserId(1, "ALL", -1, 10));
     }
 
     @Test
@@ -176,6 +195,23 @@ class BookingServiceImplTest {
         assertEquals(Status.APPROVED, actualBooking.getStatus());
 
         verify(bookingRepository).save(booking);
+    }
+
+    @Test
+    void approveBookingTestThrowNotFoundException() {
+        User user = new User();
+        user.setId(1);
+        Item item = new Item();
+        item.setUser(user);
+        Booking booking = new Booking();
+        booking.setStatus(Status.WAITING);
+        booking.setItem(item);
+        booking.setBooker(user);
+
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(bookingRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> bookingService.approveBooking(1, 1, true));
     }
 
     @Test
@@ -305,6 +341,31 @@ class BookingServiceImplTest {
 
         assertThrows(NotFoundException.class,
                 () -> bookingService.addNewBooking(1, bookingDto));
+
+        verify(bookingRepository, never()).save(any(Booking.class));
+    }
+
+    @Test
+    void addNewBookingTestShouldThrowNotFoundException2() {
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setStart(LocalDateTime.of(2023, 7, 7, 7, 7));
+        bookingDto.setEnd(LocalDateTime.of(2023, 7, 8, 7, 7));
+        User user = new User();
+        user.setId(1);
+        User owner = new User();
+        owner.setId(2);
+        Item item = new Item();
+        item.setId(1);
+        item.setUser(user);
+        item.setAvailable(true);
+        bookingDto.setItemId(1);
+        Booking booking = BookingMapper.toEntity(user, item, bookingDto);
+        booking.setStatus(Status.WAITING);
+        when(itemRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> itemRepository.findById(bookingDto.getItemId())
+                        .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.NOT_ITEM, bookingDto.getItemId()))));
 
         verify(bookingRepository, never()).save(any(Booking.class));
     }

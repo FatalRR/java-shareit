@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -71,6 +72,56 @@ class UserServiceImplTest {
         assertEquals(UserMapper.toDto(userToUpdate), actualUser);
         verify(userRepository).findById(1);
         verify(userRepository).save(userToUpdate);
+    }
+
+    @Test
+    void updateWithNameOnlyTest() {
+        User userToUpdate = new User();
+        userToUpdate.setId(1);
+        userToUpdate.setName(null);
+        userToUpdate.setEmail("test@mail.ru");
+
+        User userInDB = new User();
+        userInDB.setId(1);
+        userInDB.setName("ser");
+        userInDB.setEmail("test2@mail.ru");
+
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(userInDB));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserDto actualUser = userService.update(userToUpdate.getId(), UserMapper.toDto(userToUpdate));
+
+        assertEquals(userInDB.getName(), actualUser.getName());
+        assertEquals(userToUpdate.getEmail(), actualUser.getEmail());
+        verify(userRepository).findById(1);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void updateWithEmailOnlyTest() {
+        User userToUpdate = new User();
+        userToUpdate.setId(1);
+        userToUpdate.setName("Sergey");
+        userToUpdate.setEmail(null);
+
+        User userInDB = new User();
+        userInDB.setId(1);
+        userInDB.setName("ser");
+        userInDB.setEmail("test2@mail.ru");
+
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(userInDB));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserDto actualUser = userService.update(userToUpdate.getId(), UserMapper.toDto(userToUpdate));
+
+        assertEquals(userToUpdate.getName(), actualUser.getName());
+        assertEquals(userInDB.getEmail(), actualUser.getEmail());
+        verify(userRepository).findById(1);
+        verify(userRepository).save(any(User.class));
     }
 
     @Test

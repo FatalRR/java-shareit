@@ -79,7 +79,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemWithBooking> getItems(Integer userId, Integer from, Integer size) {
-        ;
         if (from < 0) {
             throw new ValidationException(ExceptionMessages.FROM_IS_NEGATIVE);
         }
