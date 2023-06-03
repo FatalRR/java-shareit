@@ -7,12 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.AlreadyExistException;
-import ru.practicum.shareit.exception.ErrorHandler;
-import ru.practicum.shareit.exception.ErrorResponse;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +42,7 @@ class UserControllerTest {
 
         assertEquals(user, response);
     }
+
     @Test
     @DisplayName("Test save method with AlreadyExistException")
     void saveTestWithException() {
