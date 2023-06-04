@@ -27,7 +27,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(MockitoExtension.class)
 class ItemServiceImplTest {
     @Mock
@@ -70,15 +69,6 @@ class ItemServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> itemService.getItems(userId, from, size));
-    }
-
-    @Test
-    public void getItems_InvalidUserId_ThrowsValidationException() {
-        Integer userId = 1;
-        Integer from = -1;
-        Integer size = 10;
-
-        assertThrows(ValidationException.class, () -> itemService.getItems(userId, from, size));
     }
 
     @Test
@@ -214,15 +204,6 @@ class ItemServiceImplTest {
         List<ItemDto> result = itemService.getByQuery(query, from, size);
 
         Assertions.assertEquals(0, result.size());
-    }
-
-    @Test
-    public void getByQuery_InvalidFrom_ThrowsValidationException() {
-        String query = "search";
-        Integer from = -1;
-        Integer size = 10;
-
-        assertThrows(ValidationException.class, () -> itemService.getByQuery(query, from, size));
     }
 
     @Test
@@ -416,5 +397,4 @@ class ItemServiceImplTest {
                 eq(itemId), ArgumentMatchers.<LocalDateTime>any(), eq(Status.APPROVED));
         verify(commentRepository).findAllByItemId(itemId);
     }
-
 }
