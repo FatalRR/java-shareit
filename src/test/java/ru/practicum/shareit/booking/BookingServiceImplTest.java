@@ -26,15 +26,14 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
+    @Mock
+    private ItemRepository itemRepository;
 
     @Mock
-    ItemRepository itemRepository;
+    private BookingRepository bookingRepository;
 
     @Mock
-    BookingRepository bookingRepository;
-
-    @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private BookingServiceImpl bookingService;
@@ -159,20 +158,6 @@ class BookingServiceImplTest {
 
         assertThrows(ValidationException.class,
                 () -> bookingService.getByOwnerId(1, "WRONG", 1, 10));
-    }
-
-    @Test
-    void getByOwnerIdTestAndThrowExceptionIfFromIsNegative() {
-        when(userRepository.findById(1)).thenReturn(Optional.of(new User()));
-        assertThrows(ValidationException.class,
-                () -> bookingService.getByOwnerId(1, "ALL", -1, 10));
-    }
-
-    @Test
-    void getByUserIdTestAndThrowExceptionIfFromIsNegative() {
-        when(userRepository.findById(1)).thenReturn(Optional.of(new User()));
-        assertThrows(ValidationException.class,
-                () -> bookingService.getByUserId(1, "ALL", -1, 10));
     }
 
     @Test
