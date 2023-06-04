@@ -19,10 +19,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ItemRequestControllerTest {
     @Mock
-    ItemRequestService itemRequestService;
+    private ItemRequestService itemRequestService;
 
     @InjectMocks
-    ItemRequestController requestController;
+    private ItemRequestController requestController;
 
     @Test
     void getRequestTest() {
