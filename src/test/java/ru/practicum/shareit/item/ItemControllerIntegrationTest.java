@@ -9,19 +9,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.item.model.ItemService;
 import ru.practicum.shareit.item.model.ItemWithBooking;
 import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.item.model.*;
-import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -67,6 +68,16 @@ class ItemControllerIntegrationTest {
 
     @SneakyThrows
     @Test
+    void getWhenFromIsNegativeTest() {
+        mockMvc.perform(get("/items")
+                        .header("X-Sharer-User-Id", 1)
+                        .param("from", "-1")
+                        .param("size", "10"))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @SneakyThrows
+    @Test
     void getByIdTest() {
         ItemWithBooking itemWithBooking = new ItemWithBooking();
         when(itemService.getItemById(1, 1)).thenReturn(itemWithBooking);
@@ -98,6 +109,19 @@ class ItemControllerIntegrationTest {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(itemDtos), response);
+    }
+
+    @SneakyThrows
+    @Test
+    void getByIdQueryWhenFromIsNegativeTest() {
+        mockMvc.perform(get("/items//search", 1)
+                        .param("text", "good")
+                        .param("from", "-1")
+                        .param("size", "10"))
+                .andExpect(status().is5xxServerError())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
     }
 
     @SneakyThrows
