@@ -79,6 +79,26 @@ class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
+    void getByUserIdWhenFromIsNegativeTest() {
+        mockMvc.perform(get("/bookings", 1)
+                        .header("X-Sharer-User-Id", 1)
+                        .param("from", "-1")
+                        .param("size", "10"))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @SneakyThrows
+    @Test
+    void getByOwnerIdWhenFromIsNegativeTest() {
+      mockMvc.perform(get("/bookings/owner", 1)
+                        .header("X-Sharer-User-Id", 1)
+                        .param("from", "-1")
+                        .param("size", "10"))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @SneakyThrows
+    @Test
     void getByOwnerIdTest() {
         List<BookingDto> bookings = List.of(new BookingDto());
         when(bookingService.getByOwnerId(1, "ALL", 1, 10)).thenReturn(bookings);
