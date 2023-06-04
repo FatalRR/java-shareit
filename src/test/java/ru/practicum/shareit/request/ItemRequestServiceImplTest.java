@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,16 +24,16 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
     @Mock
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
 
     @Mock
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
-    ItemRequestServiceImpl itemRequestService;
+    private ItemRequestServiceImpl itemRequestService;
 
     @Test
     void addNewItemRequestTest() {
