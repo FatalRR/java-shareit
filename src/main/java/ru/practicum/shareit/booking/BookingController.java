@@ -2,17 +2,21 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.messages.LogMessages;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class BookingController {
     private final BookingService bookingService;
     private static final String USERID = "X-Sharer-User-Id";
@@ -26,16 +30,20 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getByUserId(@RequestHeader(USERID) Integer userId,
-                                        @RequestParam(defaultValue = "ALL") String state) {
+                                        @RequestParam(defaultValue = "ALL") String state,
+                                        @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                        @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info(String.valueOf(LogMessages.TRY_GET_BOOKING_BY_USER_ID), userId);
-        return bookingService.getByUserId(userId, state);
+        return bookingService.getByUserId(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getByOwnerId(@RequestHeader(USERID) Integer userId,
-                                         @RequestParam(defaultValue = "ALL") String state) {
+                                         @RequestParam(defaultValue = "ALL") String state,
+                                         @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                         @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info(String.valueOf(LogMessages.TRY_GET_BOOKING_BY_OWNER_ID), userId);
-        return bookingService.getByOwnerId(userId, state);
+        return bookingService.getByOwnerId(userId, state, from, size);
     }
 
     @PatchMapping("/{bookingId}")

@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.model;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,17 +36,11 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
-    private void checkOwner(Integer userId, Item item) {
-        if (!Objects.equals(userId, item.getUser().getId())) {
-            throw new NotFoundException(ExceptionMessages.NOT_OWNER);
-        }
-    }
-
     private void checkUser(Integer userId) {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
     }
 
-    private List<ItemWithBooking> mapToItemWithBooking(Iterable<Item> items) {
+    public List<ItemWithBooking> mapToItemWithBooking(Iterable<Item> items) {
         List<ItemWithBooking> itemWithBookings = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         Map<Item, List<Comment>> comments = commentRepository.findByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
@@ -56,8 +52,8 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.groupingBy(Booking::getItem));
 
         for (Item item : items) {
-            BookingDto lastBooking = getLastBookingDtoForItem(item, now, bookingsMap.getOrDefault(item, Collections.emptyList()));
-            BookingDto nextBooking = getNextBookingDtoForItem(item, now, bookingsMap.getOrDefault(item, Collections.emptyList()));
+            BookingDto lastBooking = getLastBookingDtoForItem(now, bookingsMap.getOrDefault(item, Collections.emptyList()));
+            BookingDto nextBooking = getNextBookingDtoForItem(now, bookingsMap.getOrDefault(item, Collections.emptyList()));
             List<CommentDto> itemComments = CommentMapper.toDtoList(comments.getOrDefault(item, Collections.emptyList()));
             itemWithBookings.add(ItemMapper.toEntityWithBooking(item, lastBooking, nextBooking, itemComments));
         }
@@ -65,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
         return itemWithBookings;
     }
 
-    private BookingDto getLastBookingDtoForItem(Item item, LocalDateTime now, List<Booking> bookings) {
+    private BookingDto getLastBookingDtoForItem(LocalDateTime now, List<Booking> bookings) {
         return bookings.stream()
                 .filter(booking -> booking.getStart().isBefore(now))
                 .max(Comparator.comparing(Booking::getStart))
@@ -73,7 +69,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElse(null);
     }
 
-    private BookingDto getNextBookingDtoForItem(Item item, LocalDateTime now, List<Booking> bookings) {
+    private BookingDto getNextBookingDtoForItem(LocalDateTime now, List<Booking> bookings) {
         return bookings.stream()
                 .filter(booking -> booking.getStart().isAfter(now))
                 .min(Comparator.comparing(Booking::getStart))
@@ -82,9 +78,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemWithBooking> getItems(Integer userId) {
+    public Collection<ItemWithBooking> getItems(Integer userId, Integer from, Integer size) {
         checkUser(userId);
-        return mapToItemWithBooking(itemRepository.findByUserId(userId));
+        Sort sortByDate = Sort.by(Sort.Direction.ASC, "id");
+        int pageIndex = from / size;
+        Pageable page = PageRequest.of(pageIndex, size, sortByDate);
+
+        return mapToItemWithBooking(itemRepository.findByUserId(userId, page).toList());
     }
 
     @Transactional
@@ -123,12 +123,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getByQuery(String query) {
+    public List<ItemDto> getByQuery(String query, Integer from, Integer size) {
+        Sort sortByDate = Sort.by(Sort.Direction.ASC, "id");
+        int pageIndex = from / size;
+        Pageable page = PageRequest.of(pageIndex, size, sortByDate);
+
         if (query.isBlank()) {
             return new ArrayList<>();
         }
 
-        List<Item> userItems = itemRepository.findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query);
+        List<Item> userItems = itemRepository.findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query, page);
 
         List<Item> availableItems = userItems.stream()
                 .filter(Item::getAvailable)
@@ -141,20 +145,18 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void removeById(Integer userId, Integer itemId) {
         checkUser(userId);
-        checkOwner(userId, itemRepository.getById(itemId));
         itemRepository.deleteByUserIdAndId(userId, itemId);
     }
 
     @Override
     public CommentDto addNewComment(Integer userId, CommentDto commentDto, Integer itemId) {
-        List<Booking> bookings = bookingRepository.findBookingByUserIdAndFinishAfterNow(userId);
+        List<Booking> bookings = bookingRepository.getBookingByBookerIdAndItemIdAndEndBeforeOrderByStartDesc(userId, itemId, LocalDateTime.now());
         boolean userIsBooker = bookings.stream()
                 .anyMatch(booking -> Objects.equals(booking.getItem().getId(), itemId));
 
         if (!userIsBooker) {
             throw new ValidationException(ExceptionMessages.BOOKING_NOT_CONFIRMED);
         }
-
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.NOT_ITEM));
 

@@ -20,4 +20,6 @@ public enum ExceptionMessages {
     public static final String DATE_BOOKING = "Дата окончания бронирования должна быть после его начала";
     public static final String ALREADY_APPROVED = "Бронирование с ID =%d уже подтверждена";
     public static final String BOOKING_NOT_CONFIRMED = "Пользователь не брал в аренду вещь";
+    public static final String FROM_IS_NEGATIVE = "FROM отрицательная";
+    public static final String REQUEST_NOT_FOUND = "Запрос с ID =%d не найден";
 }

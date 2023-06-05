@@ -33,8 +33,8 @@ public class BookingMapper {
         item.setId(booking.getItem().getId());
         item.setName(booking.getItem().getName());
         bookingDto.setItem(item);
-        bookingDto.setItemId(booking.getItem().getId());
-        bookingDto.setBookerId(booking.getBooker().getId());
+        bookingDto.setItemId(booking.getItem().getId() != null ? booking.getItem().getId() : null);
+        bookingDto.setBookerId(booking.getBooker().getId()  != null ? booking.getBooker().getId() : null);
         bookingDto.setStart(booking.getStart());
         bookingDto.setEnd(booking.getEnd());
         bookingDto.setStatus(booking.getStatus());

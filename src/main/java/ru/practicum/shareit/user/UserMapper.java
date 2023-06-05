@@ -28,4 +28,10 @@ public class UserMapper {
                 .map(UserMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    public static List<User> toEntityList(List<UserDto> users) {
+        return users.stream()
+                .map(UserMapper::toEntity)
+                .collect(Collectors.toList());
+    }
 }

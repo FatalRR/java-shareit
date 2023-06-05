@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -38,43 +41,53 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getByUserId(Integer userId, String state) {
+    public List<BookingDto> getByUserId(Integer userId, String state, Integer from, Integer size) {
         checkUser(userId);
+
+        Sort sortByDate = Sort.by(Sort.Direction.ASC, "start");
+        int pageIndex = from / size;
+        Pageable page = PageRequest.of(pageIndex, size, sortByDate);
+
         Status status = Status.valueOf(state.toUpperCase());
         switch (status) {
             case ALL:
-                return BookingMapper.toDtoList(bookingRepository.findByUserId(userId));
+                return BookingMapper.toDtoList(bookingRepository.getByBookerIdOrderByStartDesc(userId, page).toList());
             case CURRENT:
-                return BookingMapper.toDtoList(bookingRepository.findCurrentByUserId(userId));
+                return BookingMapper.toDtoList(bookingRepository.getCurrentByUserId(userId, page).toList());
             case PAST:
-                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndFinishAfterNow(userId));
+                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndFinishAfterNow(userId, page).toList());
             case FUTURE:
-                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndStarBeforeNow(userId));
+                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndStarBeforeNow(userId, page).toList());
             case WAITING:
-                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.WAITING));
+                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.WAITING, page).toList());
             case REJECTED:
-                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED));
+                return BookingMapper.toDtoList(bookingRepository.findBookingByUserIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED, page).toList());
         }
         throw new ValidationException(String.format(ExceptionMessages.UNKNOWN_STATUS));
     }
 
     @Override
-    public List<BookingDto> getByOwnerId(Integer userId, String state) {
+    public List<BookingDto> getByOwnerId(Integer userId, String state, Integer from, Integer size) {
         checkUser(userId);
+
+        Sort sortByDate = Sort.by(Sort.Direction.ASC, "start");
+        int pageIndex = from / size;
+        Pageable page = PageRequest.of(pageIndex, size, sortByDate);
+
         Status status = Status.valueOf(state.toUpperCase());
         switch (status) {
             case ALL:
-                return BookingMapper.toDtoList(bookingRepository.findByOwnerId(userId));
+                return BookingMapper.toDtoList(bookingRepository.findByOwnerId(userId, page).toList());
             case CURRENT:
-                return BookingMapper.toDtoList(bookingRepository.findCurrentByOwnerId(userId));
+                return BookingMapper.toDtoList(bookingRepository.getCurrentByOwnerId(userId, page).toList());
             case PAST:
-                return BookingMapper.toDtoList(bookingRepository.findPastByOwnerId(userId));
+                return BookingMapper.toDtoList(bookingRepository.findPastByOwnerId(userId, page).toList());
             case FUTURE:
-                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndStarBeforeNow(userId));
+                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndStarBeforeNow(userId, page).toList());
             case WAITING:
-                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.WAITING));
+                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.WAITING, page).toList());
             case REJECTED:
-                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED));
+                return BookingMapper.toDtoList(bookingRepository.findBookingByOwnerIdAndByStatusContainingIgnoreCase(userId, Status.REJECTED, page).toList());
         }
         throw new ValidationException(String.format(ExceptionMessages.UNKNOWN_STATUS));
     }
