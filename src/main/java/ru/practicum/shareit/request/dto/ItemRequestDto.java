@@ -2,7 +2,7 @@ package ru.practicum.shareit.request.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.messages.ExceptionMessages;
 
 import javax.validation.constraints.NotBlank;
@@ -19,5 +19,5 @@ public class ItemRequestDto {
 
     private LocalDateTime created;
 
-    private List<Item> items;
+    private List<ItemDto> items;
 }

@@ -6,8 +6,10 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @UtilityClass
 public class ItemMapper {
@@ -31,11 +33,12 @@ public class ItemMapper {
     }
 
     public static List<ItemDto> mapToItemDto(Iterable<Item> items) {
-        List<ItemDto> dtoItems = new ArrayList<>();
-        for (Item item : items) {
-            dtoItems.add(toDto(item));
+        if (items == null) {
+            return Collections.emptyList();
         }
-        return dtoItems;
+        return StreamSupport.stream(items.spliterator(), false)
+                .map(ItemMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public static ItemWithBooking toEntityWithBooking(Item item, BookingDto lastBooking, BookingDto nextBooking, List<CommentDto> comments) {

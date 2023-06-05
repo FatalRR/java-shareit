@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.item.model.ItemRepository;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -26,6 +27,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public ItemRequestDto addNewItemRequest(Integer userId, ItemRequestDto itemRequestDto) {
         validateUserId(userId);
@@ -56,7 +58,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         for (ItemRequestDto requestDto : itemRequestWithItems) {
             List<Item> requestItems = itemsByRequestId.getOrDefault(requestDto.getId(), Collections.emptyList());
-            requestDto.setItems(requestItems);
+            requestDto.setItems(ItemMapper.mapToItemDto(requestItems));
         }
 
         return itemRequestWithItems;
