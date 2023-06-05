@@ -18,10 +18,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ItemControllerTest {
     @Mock
-    ItemService itemService;
+    private ItemService itemService;
 
     @InjectMocks
-    ItemController itemController;
+    private ItemController itemController;
 
     @Test
     void getTest() {

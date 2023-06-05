@@ -99,6 +99,16 @@ class ItemRequestControllerIntegrationTest {
 
     @SneakyThrows
     @Test
+    void getRequestAllWhenFromIsNegativeTest() {
+        mockMvc.perform(get("/requests/all")
+                        .header("X-Sharer-User-Id", 1)
+                        .param("from", "-1")
+                        .param("size", "10"))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @SneakyThrows
+    @Test
     void saveTest() {
         ItemRequestDto itemRequestDto = new ItemRequestDto();
         itemRequestDto.setDescription("text");
@@ -121,5 +131,4 @@ class ItemRequestControllerIntegrationTest {
 
         assertEquals(objectMapper.writeValueAsString(ItemRequestMapper.toDto(itemRequest)), response);
     }
-
 }

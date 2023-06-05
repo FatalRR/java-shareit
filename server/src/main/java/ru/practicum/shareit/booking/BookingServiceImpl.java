@@ -43,9 +43,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getByUserId(Integer userId, String state, Integer from, Integer size) {
         checkUser(userId);
-        if (from < 0) {
-            throw new ValidationException(ExceptionMessages.FROM_IS_NEGATIVE);
-        }
+
         Sort sortByDate = Sort.by(Sort.Direction.ASC, "start");
         int pageIndex = from / size;
         Pageable page = PageRequest.of(pageIndex, size, sortByDate);
@@ -71,9 +69,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getByOwnerId(Integer userId, String state, Integer from, Integer size) {
         checkUser(userId);
-        if (from < 0) {
-            throw new ValidationException(ExceptionMessages.FROM_IS_NEGATIVE);
-        }
+
         Sort sortByDate = Sort.by(Sort.Direction.ASC, "start");
         int pageIndex = from / size;
         Pageable page = PageRequest.of(pageIndex, size, sortByDate);

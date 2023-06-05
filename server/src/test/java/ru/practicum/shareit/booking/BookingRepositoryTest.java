@@ -99,26 +99,6 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void findByIdTest() {
-    }
-
-    @Test
-    void findFirstByItemIdAndStartBeforeAndStatusOrderByStartDescTest() {
-    }
-
-    @Test
-    void findFirstByItemIdAndEndAfterAndStatusOrderByStartAscTest() {
-    }
-
-    @Test
-    void getByBookerIdOrderByStartDescTest() {
-    }
-
-    @Test
-    void getByBookerIdAndStatusContainingIgnoreCaseOrderByStartDescTest() {
-    }
-
-    @Test
     void getCurrentByUserIdTest() {
         List<Booking> bookings = bookingRepository.getCurrentByUserId(2, page).toList();
 
@@ -182,9 +162,5 @@ class BookingRepositoryTest {
 
         assertFalse(bookings.isEmpty());
         assertTrue(bookings.get(0).getStart().isAfter(LocalDateTime.now()));
-    }
-
-    @Test
-    void getBookingByBookerIdAndItemIdAndEndBeforeOrderByStartDescTest() {
     }
 }

@@ -19,10 +19,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class BookingControllerTest {
     @Mock
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @InjectMocks
-    BookingController bookingController;
+    private BookingController bookingController;
 
     @Test
     void getByIdTest() {
