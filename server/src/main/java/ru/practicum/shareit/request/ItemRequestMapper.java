@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public class ItemRequestMapper {
         itemRequestDto.setId(itemRequest.getId());
         itemRequestDto.setDescription(itemRequest.getDescription());
         itemRequestDto.setCreated(itemRequest.getCreated());
-        itemRequestDto.setItems(itemRequest.getItems());
+        itemRequestDto.setItems(ItemMapper.mapToItemDto(itemRequest.getItems()) != null ? ItemMapper.mapToItemDto(itemRequest.getItems()) : null);
         return itemRequestDto;
     }
 

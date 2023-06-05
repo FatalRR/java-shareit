@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.item.model.ItemRepository;
 import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -17,6 +18,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,23 +44,22 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     public List<ItemRequestDto> mapToRequestWithItems(Iterable<ItemRequest> itemRequests) {
-        List<ItemRequestDto> itemRequestWithItems = new ArrayList<>();
-        List<Integer> requestIds = new ArrayList<>();
+        List<Integer> requestIds = StreamSupport.stream(itemRequests.spliterator(), false)
+                .map(ItemRequest::getId)
+                .collect(Collectors.toList());
 
-        for (ItemRequest request : itemRequests) {
-            requestIds.add(request.getId());
-            ItemRequestDto requestDto = ItemRequestMapper.toDto(request);
-            itemRequestWithItems.add(requestDto);
-        }
+        List<ItemRequestDto> itemRequestWithItems = StreamSupport.stream(itemRequests.spliterator(), false)
+                .map(ItemRequestMapper::toDto)
+                .collect(Collectors.toList());
 
         List<Item> items = itemRepository.findByRequestIdIn(requestIds);
         Map<Integer, List<Item>> itemsByRequestId = items.stream()
                 .collect(Collectors.groupingBy(Item::getRequestId));
 
-        for (ItemRequestDto requestDto : itemRequestWithItems) {
+        itemRequestWithItems.forEach(requestDto -> {
             List<Item> requestItems = itemsByRequestId.getOrDefault(requestDto.getId(), Collections.emptyList());
-            requestDto.setItems(requestItems);
-        }
+            requestDto.setItems(ItemMapper.mapToItemDto(requestItems));
+        });
 
         return itemRequestWithItems;
     }
