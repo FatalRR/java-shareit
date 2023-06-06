@@ -71,15 +71,6 @@ class ItemServiceImplTest {
         assertThrows(NotFoundException.class, () -> itemService.getItems(userId, from, size));
     }
 
-/*    @Test
-    public void getItems_InvalidUserId_ThrowsValidationException() {
-        Integer userId = 1;
-        Integer from = -1;
-        Integer size = 10;
-
-        assertThrows(ValidationException.class, () -> itemService.getItems(userId, from, size));
-    }*/
-
     @Test
     public void save_ValidUserIdAndItemDto_ReturnsItemDto() {
         Integer userId = 1;
@@ -214,15 +205,6 @@ class ItemServiceImplTest {
 
         Assertions.assertEquals(0, result.size());
     }
-
-/*    @Test
-    public void getByQuery_InvalidFrom_ThrowsValidationException() {
-        String query = "search";
-        Integer from = -1;
-        Integer size = 10;
-
-        assertThrows(ValidationException.class, () -> itemService.getByQuery(query, from, size));
-    }*/
 
     @Test
     public void removeById_ValidUserAndItem_RemovesItem() {
@@ -415,5 +397,4 @@ class ItemServiceImplTest {
                 eq(itemId), ArgumentMatchers.<LocalDateTime>any(), eq(Status.APPROVED));
         verify(commentRepository).findAllByItemId(itemId);
     }
-
 }

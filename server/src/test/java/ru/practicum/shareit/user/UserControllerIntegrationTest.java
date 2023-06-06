@@ -75,46 +75,6 @@ class UserControllerIntegrationTest {
         assertEquals(objectMapper.writeValueAsString(user), response);
     }
 
-/*    @SneakyThrows
-    @Test
-    void saveTestShouldThrowExceptionEmail() {
-        UserDto user = new UserDto();
-        user.setEmail("i@i.ru");
-        user.setName(null);
-        when(userService.saveUser(any(UserDto.class))).thenReturn(user);
-
-        String response = mockMvc.perform(post("/users")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        verify(userService, never()).saveUser(any(UserDto.class));
-
-    }*/
-
-/*    @SneakyThrows
-    @Test
-    void saveTestShouldThrowExceptionName() {
-        UserDto user = new UserDto();
-        user.setEmail(null);
-        user.setName("i");
-        when(userService.saveUser(any(UserDto.class))).thenReturn(user);
-
-        String response = mockMvc.perform(post("/users")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        verify(userService, never()).saveUser(any(UserDto.class));
-
-    }*/
-
     @SneakyThrows
     @Test
     void updateTest() {
