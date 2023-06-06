@@ -20,8 +20,29 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handlerValidationException(final ValidationException e) {
+        log.info(String.valueOf(LogMessages.ERROR_400), e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handlerItemAlreadyExistException(final AlreadyExistException e) {
+        log.info(String.valueOf(LogMessages.ERROR_409), e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.info(String.valueOf(LogMessages.ERROR_400), e.getMessage());
         return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleThrowable(final Throwable throwable) {
+        log.info(String.valueOf(LogMessages.ERROR_500), throwable.getMessage());
+        return new ErrorResponse(throwable.getMessage());
     }
 }
